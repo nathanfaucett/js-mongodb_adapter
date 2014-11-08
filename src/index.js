@@ -53,6 +53,12 @@ MongoAdapter.prototype.init = function(callback) {
     return this;
 };
 
+MongoAdapter.prototype.close = function() {
+
+    this.db.close();
+    return this;
+};
+
 function addAutoIncrement(counters, db, tableName, columnName, callback) {
     var collectionName = createCollectionName(tableName, columnName);
 
@@ -165,7 +171,7 @@ MongoAdapter.prototype.save = function(tableName, params, callback) {
                 return;
             }
 
-            callback(undefined, row);
+            callback(undefined, row[0]);
         });
     });
 
