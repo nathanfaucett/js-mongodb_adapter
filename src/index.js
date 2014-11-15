@@ -247,19 +247,29 @@ MongoAdapter.prototype.findOne = function(tableName, query, callback) {
 };
 
 MongoAdapter.prototype.destroy = function(tableName, query, callback) {
+    var collection = this.db.collection(tableName),
+        where = query.where || {};
 
-    this.db.collection(tableName).remove(query.where || {}, function(err, docs) {
+    collection.find(where, function(err, docs) {
         if (err) {
             callback(err);
             return;
         }
 
         docs.toArray(function(err, items) {
-            if (err) {
+            if (err || !items.length) {
                 callback(err);
                 return;
             }
-            callback(undefined, items);
+
+            collection.remove(where, function(err) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+
+                callback(undefined, items);
+            });
         });
     });
     return this;
