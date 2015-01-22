@@ -1,5 +1,5 @@
-var type = require("type"),
-    each = require("each"),
+var isNumber = require("is_number"),
+    forEach = require("for_each"),
     MongoClient = require('mongodb').MongoClient;
 
 
@@ -8,7 +8,7 @@ function MongoAdapter(options) {
 
     this.db = null;
     this.database = options.database != null ? options.database : "test";
-    this.port = type.isNumber(options.port) ? +options.port : 27017;
+    this.port = isNumber(options.port) ? +options.port : 27017;
 
     this._counters = {};
 }
@@ -32,11 +32,11 @@ MongoAdapter.prototype.init = function(callback) {
         if (schema) {
             createCallback = series(callback);
 
-            each(schema.tables, function(tableSchema, tableName) {
+            forEach(schema.tables, function(tableSchema, tableName) {
                 var counters = _this._counters[tableName] = {};
 
-                each(tableSchema.columns, function(column, columnName) {
-                    each(column, function(value, key) {
+                forEach(tableSchema.columns, function(column, columnName) {
+                    forEach(column, function(value, key) {
                         if (key === "autoIncrement") {
                             addAutoIncrement(counters, db, tableName, columnName, createCallback());
                         } else if (key === "unique") {
@@ -175,7 +175,7 @@ MongoAdapter.prototype.save = function(tableName, params, callback) {
         });
     });
 
-    each(counters, function(counter, columnName) {
+    forEach(counters, function(counter, columnName) {
         var next = createCallback();
 
         counter(function(err, value) {
